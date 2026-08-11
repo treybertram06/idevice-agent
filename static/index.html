@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>idevice-agent test</title>
+</head>
+<body>
+<h1>idevice-agent</h1>
+<button id="fetch">Fetch /device</button>
+<span id="status"></span>
+<table id="table"></table>
+<h3>Raw JSON</h3>
+<pre id="raw"></pre>
+
+<script>
+const btn = document.getElementById("fetch");
+const statusEl = document.getElementById("status");
+const table = document.getElementById("table");
+const raw = document.getElementById("raw");
+
+btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    statusEl.textContent = "loading...";
+    table.innerHTML = "";
+    raw.textContent = "";
+    try {
+        const res = await fetch("/device");
+        const data = await res.json();
+        statusEl.textContent = `HTTP ${res.status}`;
+        for (const [key, value] of Object.entries(data)) {
+            const row = table.insertRow();
+            row.insertCell().textContent = key;
+            row.insertCell().textContent = value === null ? "null" : String(value);
+        }
+        raw.textContent = JSON.stringify(data, null, 2);
+    } catch (err) {
+        statusEl.textContent = "error: " + err;
+    } finally {
+        btn.disabled = false;
+    }
+});
+</script>
+</body>
+</html>
